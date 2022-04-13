@@ -11,6 +11,8 @@ import 'utils/compare_date.dart';
 import 'strings.dart';
 import 'utils/cache_stream.dart';
 
+enum DateViewStyle{Underlined,Boxed}
+
 class WeekCalendarController {
   /// Today date time
   DateTime _today = DateTime.now();
@@ -123,6 +125,12 @@ class HorizontalWeekCalender extends StatefulWidget {
   /// Style of weekends days
   final TextStyle weekendsStyle;
 
+  /// Style of Today button textStyle
+  final TextStyle todayButtonTextStyle;
+
+  /// Style of Dateview
+  final DateViewStyle dateViewStyle;
+
   /// Alignment of day day of week
   final FractionalOffset monthAlignment;
 
@@ -152,6 +160,12 @@ class HorizontalWeekCalender extends StatefulWidget {
 
   /// Background color of calendar
   final Color backgroundColor;
+
+  /// Selected date Background color of calendar
+  final Color selectedDateBackgroundColor;
+
+  /// Unselected date Background color of calendar
+  final Color unselectedDateBackgroundColor;
 
   /// List contain titles day of week
   final List<String> daysOfWeek;
@@ -202,11 +216,15 @@ class HorizontalWeekCalender extends StatefulWidget {
       this.onDatePressed,
       this.onDateLongPressed,
       this.backgroundColor,
+      this.selectedDateBackgroundColor,
+      this.unselectedDateBackgroundColor,
       this.daysOfWeek,
       this.months,
       this.monthDisplay,
       this.weekendsIndexes,
       this.weekendsStyle,
+      this.todayButtonTextStyle,
+      this.dateViewStyle,
       this.marginMonth,
       this.marginDayOfWeek,
       this.dayShapeBorder,
@@ -221,7 +239,7 @@ class HorizontalWeekCalender extends StatefulWidget {
   factory HorizontalWeekCalender({Key? key,
     DateTime? maxDate,
     DateTime? minDate,
-    double height = 120,
+    double height =  140,
     Widget Function(DateTime)? monthViewBuilder,
     TextStyle dayOfWeekStyle = const TextStyle(color: Color(0xffC3C9D7), fontWeight: FontWeight.w400, fontSize: 12),
     FractionalOffset monthAlignment = FractionalOffset.center,
@@ -234,11 +252,15 @@ class HorizontalWeekCalender extends StatefulWidget {
     Function(DateTime)? onDatePressed,
     Function(DateTime)? onDateLongPressed,
     Color backgroundColor = Colors.white,
+    Color selectedDateBackgroundColor = Colors.blue,
+    Color unselectedDateBackgroundColor = Colors.white,
     List<String> dayOfWeek = dayOfWeekDefault,
     List<String> month = monthDefaults,
     bool showMonth = true,
     List<int> weekendsIndexes = weekendsIndexesDefault,
     TextStyle weekendsStyle = const TextStyle(color: Color(0xFF2B344A), fontWeight: FontWeight.w700, fontSize: 17),
+    TextStyle todayButtonTextStyle = const TextStyle(color: Colors.blue, fontWeight: FontWeight.w700, fontSize: 14),
+    DateViewStyle dateViewStyle = DateViewStyle.Boxed,
     EdgeInsets marginMonth = const EdgeInsets.symmetric(vertical: 4),
     EdgeInsets marginDayOfWeek = EdgeInsets.zero,
     CircleBorder dayShapeBorder = const CircleBorder(),
@@ -262,11 +284,15 @@ class HorizontalWeekCalender extends StatefulWidget {
           onDatePressed ?? (DateTime date) {},
           onDateLongPressed ?? (DateTime date) {},
           backgroundColor,
+          selectedDateBackgroundColor,
+          unselectedDateBackgroundColor,
           dayOfWeek,
           month,
           showMonth,
           weekendsIndexes,
           weekendsStyle,
+          todayButtonTextStyle,
+          dateViewStyle,
           marginMonth,
           marginDayOfWeek,
           dayShapeBorder,
@@ -358,30 +384,30 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                  padding: EdgeInsets.all(16).copyWith(top: 20,bottom: 20),
+                  padding: EdgeInsets.all(16).copyWith(top: 20,bottom: 16),
                   child: Row(
                     children: [
                       Expanded(child: Row(
                         children: [
                           InkWell(
-                              onTap: widget.controller!.prevMonthEnable ? (){
+                              onTap: (){
                                 DateTime date = getDate(controller._weeks[_pageController.page!.toInt()].days[controller._weeks[_pageController.page!.toInt()].days.length-1]!,isPrev:true);
                                 widget.controller!.jumpToDate(date);
                                 widget.onDatePressed(date);
-                              } : null,
-                              child: Icon(Icons.arrow_back_ios_new_rounded,color: widget.controller!.prevMonthEnable ? Colors.black : Colors.grey,size: 18,)
+                              },
+                              child: const Icon(Icons.arrow_back_ios_new_rounded,color:Colors.black ,size: 18,)
                           ),
                           Padding(
-                            padding: EdgeInsets.only(left: 5,right: 5),
+                            padding: const EdgeInsets.only(left: 5,right: 5),
                             child: Text('${controller._weeks[controller._currentWeekIndex].month} ${controller._weeks[controller._currentWeekIndex].days[0]!.year}',style: TextStyle(fontSize: 14,color: Color(0xFF2B344A),fontWeight: FontWeight.w700),),
                           ),
                           InkWell(
-                              onTap: widget.controller!.nextMonthEnable ? (){
+                              onTap: (){
                                 DateTime date = getDate(controller._weeks[_pageController.page!.toInt()].days[controller._weeks[_pageController.page!.toInt()].days.length-1]!);
                                 widget.controller!.jumpToDate(date);
                                 widget.onDatePressed(date);
-                              } : null,
-                              child: Icon(Icons.arrow_forward_ios_rounded,color: widget.controller!.nextMonthEnable ? Colors.black : Colors.grey,size: 18,)
+                              },
+                              child: const Icon(Icons.arrow_forward_ios_rounded,color: Colors.black,size: 18,)
                           ),
                         ],
                       )),
@@ -390,7 +416,7 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
                           widget.controller!.jumpToDate(controller._today);
                           widget.onDatePressed(controller._today);
                         },
-                        child: Text('Today',style: TextStyle(color: Colors.blue,fontSize: 14,)),
+                        child: Text('Today',style: widget.todayButtonTextStyle),
                       ),
                       SizedBox(width: 10,)
                     ],
@@ -412,81 +438,28 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
       );
 
   /// Layout of week
-  Widget _week(WeekItem weeks) =>
-      Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            // Month
-            /*(widget.monthDisplay && widget.monthViewBuilder != null &&
-                weeks.days.firstWhere((el) => el != null) != null)
-                ? widget
-                .monthViewBuilder!(weeks.days.firstWhere((el) => el != null)!)
-                : _monthItem(weeks.month),*/
+  Widget _week(WeekItem weeks) => _dates(weeks.days,weeks.dayOfWeek);
 
-            /// Day of week layout
-            _dayOfWeek(weeks.dayOfWeek),
-
-            /// Date layout
-            _dates(weeks.days)
-          ],
-        ),
-      );
-
-  /// Day of week item layout
-  Widget _monthItem(String title) =>
-      Align(
-        alignment: widget.monthAlignment,
-        child: Container(
-            margin: widget.marginMonth,
-            child: Text(
-              title,
-              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            )),
-      );
-
-  /// Day of week layout
-  Widget _dayOfWeek(List<String> dayOfWeek) =>
-      Container(
-        margin: widget.marginDayOfWeek,
-        child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: dayOfWeek.map(_dayOfWeekItem).toList()),
-      );
-
-  /// Day of week item layout
-  Widget _dayOfWeekItem(String title) =>
-      Container(
-          alignment: Alignment.center,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Container(
-              width: 50,
-              child: Text(
-                title,
-                style: widget.dayOfWeekStyle,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ));
 
   /// Date layout
-  Widget _dates(List<DateTime?> dates) =>
+  Widget _dates(List<DateTime?> dates, List<String> dayOfWeek) =>
       Expanded(
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: dates.map(_dateItem).toList()
+            children: dates.asMap().map((index, value) => MapEntry(index,
+              _dateItem(value, dayOfWeek[index])
+            )).values.toList()
         ),
       );
 
   /// Date item layout
-  Widget _dateItem(DateTime? date) =>
+  Widget _dateItem(DateTime? date,String dayOfWeek) =>
       DateItem(
           today: controller._today,
           date: date,
+          weekDay: dayOfWeek,
+          dateViewStyle: widget.dateViewStyle,
+          weekDayStyle: widget.dayOfWeekStyle,
           dateStyle: compareDate(date, controller._today)
               ? widget.todayDateStyle
               : date != null && (date.weekday == 6 || date.weekday == 7)

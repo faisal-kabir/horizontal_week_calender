@@ -22,12 +22,14 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    controller.selectedDate= DateTime.now();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.blue,
@@ -35,62 +37,58 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 10,
-                    spreadRadius: 1
-                  )
-                ]
+            HorizontalWeekCalender(
+              controller: controller,
+              showMonth: true,
+              minDate: DateTime.now().add(
+                const Duration(days: -365),
               ),
-              child: HorizontalWeekCalender(
-                controller: controller,
-                height: 100,
-                showMonth: true,
-                minDate: DateTime.now().add(
-                  const Duration(days: -365),
+              maxDate: DateTime.now().add(
+                const Duration(days: 365),
+              ),
+              onDatePressed: (DateTime datetime) {
+                // Do something
+                setState(() {});
+              },
+              onDateLongPressed: (DateTime datetime) {
+                // Do something
+              },
+              onWeekChanged: () {
+                // Do something
+              },
+              dateViewStyle: DateViewStyle.Boxed,
+              dayOfWeekStyle: TextStyle(color: Colors.black,fontSize: 12,fontWeight: FontWeight.w500),
+              pressedDateBackgroundColor: Color(0xFF25D366),
+              todayButtonTextStyle: const TextStyle(
+                color: Color(0xFF25D366),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              monthViewBuilder: (DateTime time) => Align(
+                alignment: FractionalOffset.center,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(
+                    time.toString(),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),)
                 ),
-                maxDate: DateTime.now().add(
-                  const Duration(days: 365),
+              ),
+              decorations: [
+                DecorationItem(
+                  decorationAlignment: FractionalOffset.center,
+                  date: DateTime.now(),
+                  decoration: const Icon(
+                    Icons.today,
+                    color: Colors.blue,
+                  )
                 ),
-                onDatePressed: (DateTime datetime) {
-                  // Do something
-                  setState(() {});
-                },
-                onDateLongPressed: (DateTime datetime) {
-                  // Do something
-                },
-                onWeekChanged: () {
-                  // Do something
-                },
-                monthViewBuilder: (DateTime time) => Align(
-                  alignment: FractionalOffset.center,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: Text(
-                      time.toString(),
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),)
-                  ),
+                DecorationItem(
+                  date: DateTime.now().add(const Duration(days: 3)),
+                  decoration: const Text('Holiday', style: TextStyle(color: Colors.brown, fontWeight: FontWeight.w600,),)
                 ),
-                decorations: [
-                  DecorationItem(
-                    decorationAlignment: FractionalOffset.bottomRight,
-                    date: DateTime.now(),
-                    decoration: const Icon(
-                      Icons.today,
-                      color: Colors.blue,
-                    )
-                  ),
-                  DecorationItem(
-                    date: DateTime.now().add(const Duration(days: 3)),
-                    decoration: const Text('Holiday', style: TextStyle(color: Colors.brown, fontWeight: FontWeight.w600,),)
-                  ),
-                ],
-              )
+              ],
             ),
           Expanded(
             child: Center(

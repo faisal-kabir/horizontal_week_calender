@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:horizontal_week_calender/horizontal_week_calender.dart';
 import 'package:horizontal_week_calender/src/utils/cache_stream.dart';
 import 'package:horizontal_week_calender/src/utils/compare_date.dart';
 
@@ -11,8 +12,17 @@ class DateItem extends StatefulWidget {
   /// Date of item
   final DateTime? date;
 
+  /// Week of item
+  final String? weekDay;
+
   /// Style of [date]
   final TextStyle? dateStyle;
+
+  /// Style of [weekDay]
+  final TextStyle? weekDayStyle;
+
+  /// Style of [date]
+  final DateViewStyle? dateViewStyle;
 
   /// Style of day after pressed
   final TextStyle? pressedDateStyle;
@@ -47,8 +57,14 @@ class DateItem extends StatefulWidget {
   DateItem({
     required this.today,
     required this.date,
+    required this.weekDay,
     required this.cacheStream,
-    this.dateStyle,
+    this.dateStyle = const TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+    ),
+    this.weekDayStyle,
+    this.dateViewStyle,
     this.pressedDateStyle,
     this.backgroundColor = Colors.transparent,
     this.todayBackgroundColor = Colors.orangeAccent,
@@ -100,37 +116,96 @@ class __DateItemState extends State<DateItem> {
     );
   }
 
+  Widget weekView () {
+    return Text(
+      widget.weekDay!,
+      style: widget.weekDayStyle,
+      overflow: TextOverflow.ellipsis,
+      textAlign: TextAlign.center,
+    );
+  }
+
   /// Body layout
-  Widget _body(bool isSelected) => Container(
-        width: 50,
-        alignment: FractionalOffset.center,
+  Widget _body(bool isSelected) => widget.dateViewStyle == DateViewStyle.Underlined ? SizedBox(
+    width: 50,
+    child: Column(
+      children: [
+        weekView(),
+        Expanded(
+          child: Container(
+                alignment: FractionalOffset.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onLongPress: _onLongPressed,
+                        child: TextButton(
+                            onPressed: _onPressed,
+                            child: Text(
+                              '${widget.date!.day}',
+                              style: _defaultTextStyle!,
+                            )
+                        ),
+                      ),
+                    ),
+                    Visibility(
+                      visible: isSelected,
+                      child: Container(
+                        height: 2,
+                        width: 20,
+                        color: _defaultTextStyle!.color,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+        ),
+      ],
+    ),
+  ) : Container(
+    width: 50,
+    margin: const EdgeInsets.symmetric(vertical: 10),
+    padding: const EdgeInsets.all(5),
+    decoration: BoxDecoration(
+      color: isSelected ? widget.pressedBackgroundColor : Colors.white,
+      borderRadius: BorderRadius.circular(5),
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xFF000000).withOpacity(0.1),
+          blurRadius: 10,
+          offset: const Offset(0.0,1),
+        ),
+      ],
+    ),
+    clipBehavior: Clip.antiAlias,
+    child: InkWell(
+      onLongPress: _onLongPressed,
+      borderRadius: BorderRadius.circular(5),
+      child: GestureDetector(
+        onTap: _onPressed,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: GestureDetector(
-                onLongPress: _onLongPressed,
-                child: TextButton(
-                    onPressed: _onPressed,
-                    child: Text(
-                      '${widget.date!.day}',
-                      style: _defaultTextStyle!,
-                    )
+              child: Center(
+                child: Text(
+                  '${widget.date!.day}',
+                  style: widget.dateStyle!.copyWith(color:isSelected ? Colors.white : widget.dateStyle!.color,),
                 ),
               ),
             ),
-            Visibility(
-              visible: isSelected,
-              child: Container(
-                height: 2,
-                width: 20,
-                color: _defaultTextStyle!.color,
-              ),
-            )
+            Text(
+              widget.weekDay!,
+              style: TextStyle(color: isSelected ? Colors.white : widget.weekDayStyle!.color,fontSize: 12,fontWeight: FontWeight.w500,fontFamily: widget.weekDayStyle!.fontFamily),
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
-      );
+      ),
+    ),
+  );
 
   /// Handler press event
   void _onPressed() {
