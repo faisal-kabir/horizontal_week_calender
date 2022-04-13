@@ -445,19 +445,27 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
   Widget _dates(List<DateTime?> dates, List<String> dayOfWeek) =>
       Expanded(
         child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: dates.asMap().map((index, value) => MapEntry(index,
-              _dateItem(value, dayOfWeek[index])
-            )).values.toList()
+          children: [
+            SizedBox(width: 8),
+            Expanded(
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: dates.asMap().map((index, value) => MapEntry(index,
+                    _dateItem(value, dayOfWeek[index],index)
+                  )).values.toList()
+              ),
+            ),
+          ],
         ),
       );
 
   /// Date item layout
-  Widget _dateItem(DateTime? date,String dayOfWeek) =>
+  Widget _dateItem(DateTime? date,String dayOfWeek,int index) =>
       DateItem(
           today: controller._today,
           date: date,
           weekDay: dayOfWeek,
+          index: index,
           dateViewStyle: widget.dateViewStyle,
           weekDayStyle: widget.dayOfWeekStyle,
           dateStyle: compareDate(date, controller._today)

@@ -51,6 +51,8 @@ class DateItem extends StatefulWidget {
   /// Decoration widget
   final Widget? decoration;
 
+  final int index;
+
   /// [cacheStream] for emit date press event
   final CacheStream<DateTime?> cacheStream;
 
@@ -58,6 +60,7 @@ class DateItem extends StatefulWidget {
     required this.today,
     required this.date,
     required this.weekDay,
+    required this.index,
     required this.cacheStream,
     this.dateStyle = const TextStyle(
       fontSize: 12,
@@ -126,8 +129,7 @@ class __DateItemState extends State<DateItem> {
   }
 
   /// Body layout
-  Widget _body(bool isSelected) => widget.dateViewStyle == DateViewStyle.Underlined ? SizedBox(
-    width: 50,
+  Widget _body(bool isSelected) => widget.dateViewStyle == DateViewStyle.Underlined ? Expanded(
     child: Column(
       children: [
         weekView(),
@@ -164,44 +166,45 @@ class __DateItemState extends State<DateItem> {
         ),
       ],
     ),
-  ) : Container(
-    width: 50,
-    margin: const EdgeInsets.symmetric(vertical: 10),
-    padding: const EdgeInsets.all(5),
-    decoration: BoxDecoration(
-      color: isSelected ? widget.pressedBackgroundColor : Colors.white,
-      borderRadius: BorderRadius.circular(5),
-      boxShadow: [
-        BoxShadow(
-          color: const Color(0xFF000000).withOpacity(0.1),
-          blurRadius: 10,
-          offset: const Offset(0.0,1),
-        ),
-      ],
-    ),
-    clipBehavior: Clip.antiAlias,
-    child: InkWell(
-      onLongPress: _onLongPressed,
-      borderRadius: BorderRadius.circular(5),
-      child: GestureDetector(
-        onTap: _onPressed,
-        child: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: Text(
-                  '${widget.date!.day}',
-                  style: widget.dateStyle!.copyWith(color:isSelected ? Colors.white : widget.dateStyle!.color,),
+  ) : Expanded(
+    child: Container(
+      margin: const EdgeInsets.symmetric(vertical: 10).copyWith(right: 8),
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: isSelected ? widget.pressedBackgroundColor : Colors.white,
+        borderRadius: BorderRadius.circular(5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF000000).withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0.0,1),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onLongPress: _onLongPressed,
+        borderRadius: BorderRadius.circular(5),
+        child: GestureDetector(
+          onTap: _onPressed,
+          child: Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: Text(
+                    '${widget.date!.day}',
+                    style: widget.dateStyle!.copyWith(color:isSelected ? Colors.white : widget.dateStyle!.color,),
+                  ),
                 ),
               ),
-            ),
-            Text(
-              widget.weekDay!,
-              style: TextStyle(color: isSelected ? Colors.white : widget.weekDayStyle!.color,fontSize: 12,fontWeight: FontWeight.w500,fontFamily: widget.weekDayStyle!.fontFamily),
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-          ],
+              Text(
+                widget.weekDay!,
+                style: TextStyle(color: isSelected ? Colors.white : widget.weekDayStyle!.color,fontSize: 12,fontWeight: FontWeight.w500,fontFamily: widget.weekDayStyle!.fontFamily),
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     ),
