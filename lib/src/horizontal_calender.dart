@@ -353,9 +353,9 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
     super.initState();
     _setUp();
     _pageController.addListener(() {
-      int page = _pageController.page!.toInt();
-      //weekYear=controller._weeks[page].days[controller._weeks[page].days.length-1]!.year.toString();
-      checkButtonVisibility(_pageController.page!.toInt());
+      setState(() {
+        checkButtonVisibility(_pageController.page!.toInt());
+      });
     });
   }
 
