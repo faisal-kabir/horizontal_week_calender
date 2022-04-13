@@ -364,11 +364,11 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
                       Expanded(child: Row(
                         children: [
                           InkWell(
-                              onTap: (){
+                              onTap: widget.controller!.prevMonthEnable ? (){
                                 DateTime date = getDate(controller._weeks[_pageController.page!.toInt()].days[controller._weeks[_pageController.page!.toInt()].days.length-1]!,isPrev:true);
                                 widget.controller!.jumpToDate(date);
                                 widget.onDatePressed(date);
-                              },
+                              } : null,
                               child: Icon(Icons.arrow_back_ios_new_rounded,color: widget.controller!.prevMonthEnable ? Colors.black : Colors.grey,size: 18,)
                           ),
                           Padding(
@@ -376,11 +376,11 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
                             child: Text('${controller._weeks[controller._currentWeekIndex].month} ${controller._weeks[controller._currentWeekIndex].days[0]!.year}',style: TextStyle(fontSize: 14,color: Color(0xFF2B344A),fontWeight: FontWeight.w700),),
                           ),
                           InkWell(
-                              onTap: (){
+                              onTap: widget.controller!.nextMonthEnable ? (){
                                 DateTime date = getDate(controller._weeks[_pageController.page!.toInt()].days[controller._weeks[_pageController.page!.toInt()].days.length-1]!);
                                 widget.controller!.jumpToDate(date);
                                 widget.onDatePressed(date);
-                              },
+                              } : null,
                               child: Icon(Icons.arrow_forward_ios_rounded,color: widget.controller!.nextMonthEnable ? Colors.black : Colors.grey,size: 18,)
                           ),
                         ],
