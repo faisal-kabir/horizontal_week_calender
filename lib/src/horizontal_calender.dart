@@ -269,8 +269,8 @@ class HorizontalWeekCalender extends StatefulWidget {
     Function()? onWeekChanged}) =>
       HorizontalWeekCalender._(
           key,
-          maxDate ?? DateTime.now().add(Duration(days: 365)),
-          minDate ?? DateTime.now().add(Duration(days: -365)),
+          maxDate ?? DateTime.now().add(const Duration(days: 365)),
+          minDate ?? DateTime.now().add(const Duration(days: -365)),
           height,
           monthViewBuilder,
           dayOfWeekStyle,
@@ -314,7 +314,7 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
   /// Page controller
   late PageController _pageController;
 
-  WeekCalendarController _defaultCalendarController = WeekCalendarController();
+  final WeekCalendarController _defaultCalendarController = WeekCalendarController();
 
   WeekCalendarController get controller =>
       widget.controller ?? _defaultCalendarController;
@@ -322,7 +322,7 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
   void _jumToDateHandler(DateTime? dateTime) {
     _cacheStream.add(dateTime);
     _pageController.animateToPage(widget.controller!._currentWeekIndex,
-        duration: Duration(milliseconds: 300), curve: Curves.ease);
+        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
 
@@ -353,9 +353,12 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
     super.initState();
     _setUp();
     _pageController.addListener(() {
-      setState(() {
-        checkButtonVisibility(_pageController.page!.toInt());
-      });
+      if(_pageController.page!.toInt() != controller._currentWeekIndex) {
+        setState(() {
+          controller._currentWeekIndex = _pageController.page!.toInt();
+          checkButtonVisibility(_pageController.page!.toInt());
+        });
+      }
     });
   }
 
@@ -399,7 +402,7 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 5,right: 5),
-                            child: Text('${controller._weeks[controller._currentWeekIndex].month} ${controller._weeks[controller._currentWeekIndex].days[0]!.year}',style: TextStyle(fontSize: 14,color: Color(0xFF2B344A),fontWeight: FontWeight.w700),),
+                            child: Text('${controller._weeks[controller._currentWeekIndex].month} ${controller._weeks[controller._currentWeekIndex].days[0]!.year}',style: TextStyle(fontSize: 14,color: widget.dayOfWeekStyle.color,fontWeight: FontWeight.w700),),
                           ),
                           InkWell(
                               onTap: (){
@@ -418,7 +421,7 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
                         },
                         child: Text('Today',style: widget.todayButtonTextStyle),
                       ),
-                      SizedBox(width: 10,)
+                      const SizedBox(width: 10,)
                     ],
                   )
               ),
@@ -446,7 +449,7 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
       Expanded(
         child: Row(
           children: [
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
