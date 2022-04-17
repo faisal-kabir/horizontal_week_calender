@@ -446,20 +446,18 @@ class _HorizontalWeekCalenderState extends State<HorizontalWeekCalender> {
 
   /// Date layout
   Widget _dates(List<DateTime?> dates, List<String> dayOfWeek) =>
-      Expanded(
-        child: Row(
-          children: [
-            const SizedBox(width: 8),
-            Expanded(
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: dates.asMap().map((index, value) => MapEntry(index,
-                    _dateItem(value, dayOfWeek[index],index)
-                  )).values.toList()
-              ),
+      Row(
+        children: [
+          const SizedBox(width: 8),
+          Expanded(
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: dates.asMap().map((index, value) => MapEntry(index,
+                  _dateItem(value, dayOfWeek[index],index)
+                )).values.toList()
             ),
-          ],
-        ),
+          ),
+        ],
       );
 
   /// Date item layout
